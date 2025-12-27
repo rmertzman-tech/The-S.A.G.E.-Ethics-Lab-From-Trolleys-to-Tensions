@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.A.G.E. Ethics Lab: Complete Edition</title>
+    <title>S.A.G.E. Ethics Lab: Visual Update</title>
     <style>
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
             --accent: #ff6b6b;
-            --care: #f59e0b; /* Gold for Care Ethics */
+            --care: #f59e0b;
             --bg-light: #f8f9fa;
             --text-dark: #2d3748;
+            --track-color: #4a5568;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,9 +32,7 @@
             padding: 2rem;
             text-align: center;
         }
-
         .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        .hero p { opacity: 0.9; }
 
         /* --- NAV --- */
         .nav-bar {
@@ -48,7 +47,6 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-
         .nav-btn {
             padding: 8px 16px;
             border: none;
@@ -58,19 +56,16 @@
             cursor: pointer;
             transition: all 0.3s;
             border-bottom: 3px solid transparent;
-            font-size: 0.9rem;
         }
-
         .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #ebf8ff; border-radius: 4px 4px 0 0; }
         .nav-btn:hover { color: var(--secondary); }
 
-        /* --- CONTAINER & SECTIONS --- */
+        /* --- LAYOUT --- */
         .container { max-width: 900px; margin: 2rem auto; padding: 0 20px; }
         .section { display: none; animation: fadeIn 0.4s; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- CARDS --- */
         .card {
             background: white;
             border-radius: 12px;
@@ -89,10 +84,10 @@
             font-size: 0.95rem;
         }
 
-        /* --- TROLLEY STAGE --- */
+        /* --- UPDATED TRACK STAGE --- */
         .track-stage {
             position: relative;
-            height: 250px;
+            height: 360px; /* Increased height to prevent cutoff */
             background: #e2e8f0;
             border-radius: 12px;
             overflow: hidden;
@@ -100,34 +95,92 @@
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        /* Dynamic Elements for Trolley */
-        .track-line { position: absolute; height: 12px; background: #4a5568; top: 50%; left: 0; width: 100%; transform: translateY(-50%); }
-        .track-split { position: absolute; height: 12px; background: #4a5568; top: 50%; left: 30%; width: 70%; transform-origin: left; transform: rotate(20deg); display:none; }
-        .track-bridge { position: absolute; top: 20%; left: 40%; width: 100px; height: 120%; background: rgba(0,0,0,0.1); border-left: 5px dashed #4a5568; border-right: 5px dashed #4a5568; display: none; }
-        .track-loop { position: absolute; height: 120px; width: 200px; border: 12px solid #4a5568; border-left: none; top: 50%; left: 30%; border-radius: 0 100px 100px 0; transform: translateY(-50%); display:none; }
+        /* 1. Main Track (Raised slightly) */
+        .track-line { 
+            position: absolute; 
+            height: 12px; 
+            background: var(--track-color); 
+            top: 40%; /* Moved up to make room for loops below */
+            left: 0; 
+            width: 100%; 
+            transform: translateY(-50%); 
+        }
+
+        /* 2. Classic Split Track (Adjusted Angle & Position) */
+        .track-split { 
+            position: absolute; 
+            height: 12px; 
+            background: var(--track-color); 
+            top: 40%; 
+            left: 25%; 
+            width: 80%; 
+            transform-origin: left; 
+            transform: rotate(25deg); /* Steeper angle for visibility */
+            display:none; 
+        }
+
+        /* 3. The Bridge (Fat Man) */
+        .track-bridge { 
+            position: absolute; 
+            top: 10%; 
+            left: 35%; 
+            width: 120px; 
+            height: 120%; 
+            background: rgba(0,0,0,0.05); 
+            border-left: 8px dashed #718096; 
+            border-right: 8px dashed #718096; 
+            display: none; 
+            z-index: 5;
+        }
+
+        /* 4. The Loop (Redesigned as a U-Shape) */
+        .track-loop { 
+            position: absolute; 
+            top: 40%; /* Starts at main line */
+            left: 25%; 
+            width: 300px; 
+            height: 140px; /* Deep enough to hold victim */
+            border: 12px solid var(--track-color); 
+            border-top: none; /* Open at top to connect to main line */
+            border-radius: 0 0 100px 100px; /* U-shape */
+            display:none; 
+            z-index: 0;
+        }
         
-        .trolley-icon { font-size: 3rem; position: absolute; top: 38%; left: 5%; transition: all 1s ease-in-out; z-index: 10; }
+        /* Icons */
+        .trolley-icon { font-size: 3rem; position: absolute; top: 29%; left: 5%; transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1); z-index: 10; }
         
-        .victim-group { position:absolute; top:42%; right:10%; font-size:2rem; }
-        .victim-single { position:absolute; top:65%; right:10%; font-size:2rem; display:none; }
-        .victim-bridge { position:absolute; top:15%; left:45%; font-size:2.5rem; display:none; z-index:20; }
+        /* Victim Positions - PRECISE ALIGNMENT */
+        .victim-group { position:absolute; top:31%; right:5%; font-size:2rem; z-index: 1; }
+        
+        /* Classic Single: On the angled split track */
+        #vis-single { position:absolute; top:70%; right:15%; font-size:2rem; display:none; z-index: 2; } 
+        
+        /* Loop Single: On the bottom curve of the U-loop */
+        #vis-loop-victim { position:absolute; top:66%; left:53%; font-size:2rem; display:none; z-index: 2; }
+        
+        /* Fat Man: On the bridge */
+        .victim-bridge { position:absolute; top:5%; left:40%; font-size:2.5rem; display:none; z-index:20; transition: top 1s; }
+        
+        /* Mom: On the angled split track (same as classic) */
+        #vis-mom { position:absolute; top:70%; right:15%; font-size:2rem; display:none; filter: drop-shadow(0 0 5px gold); z-index: 2; }
+
 
         /* --- BUTTONS --- */
         .btn-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; justify-content: center; }
         .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s; min-width: 150px; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-action { background: var(--primary); color: white; }
-        .btn-danger { background: var(--text-dark); color: white; } /* Do Nothing is neutral/dark */
+        .btn-danger { background: var(--text-dark); color: white; } 
         .btn-care { background: var(--care); color: white; }
         .btn-outline { background: white; border: 2px solid var(--primary); color: var(--primary); }
 
-        /* --- ANALYSIS & TRIANGLE --- */
+        /* --- ANALYSIS --- */
         .analysis-box { display:none; margin-top:20px; animation: fadeIn 0.5s; }
         .lens-card { background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #ccc; }
-        
-        .triangle-container {
-            display: flex; justify-content: center; align-items: center; margin: 40px 0; position: relative; height: 200px;
-        }
+
+        /* --- TRIANGULATION --- */
+        .triangle-container { display: flex; justify-content: center; align-items: center; margin: 40px 0; position: relative; height: 200px; }
         .triangle-point { position: absolute; padding: 8px 15px; border-radius: 20px; font-weight: bold; color: white; font-size: 0.85rem; }
         .tp-kant { top: 0; background: #9c27b0; } 
         .tp-util { bottom: 0; right: 0; background: #2196f3; }
@@ -135,15 +188,11 @@
         .center-solution { position: absolute; top: 40%; background: white; padding: 10px; border: 2px solid #2d3748; border-radius: 8px; font-weight: bold; z-index: 10; }
 
         /* --- FOOTER --- */
-        .brc-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: #2d3748; color: white; padding: 10px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.85rem; z-index: 200;
-        }
+        .brc-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; z-index: 200; }
     </style>
 </head>
 <body>
+    
 
     <div class="hero">
         <h1>The S.A.G.E. Ethics Lab</h1>
@@ -151,7 +200,7 @@
     </div>
 
     <div class="nav-bar">
-        <button class="nav-btn active" onclick="showSection('trolley-lab')">1. The Trolley Lab (Full)</button>
+        <button class="nav-btn active" onclick="showSection('trolley-lab')">1. The Trolley Lab</button>
         <button class="nav-btn" onclick="showSection('chapter3')">2. Real World Case</button>
         <button class="nav-btn" onclick="showSection('synthesis')">3. Triangulation</button>
     </div>
@@ -184,7 +233,15 @@
                     <div class="trolley-icon" id="trolley">🚃</div>
                     
                     <div class="victim-group">👷👷👷👷👷</div>
-                    <div class="victim-single" id="vis-single">👷</div> <div class="victim-bridge" id="vis-fatman">👤</div> <div class="victim-single" id="vis-mom" style="filter: drop-shadow(0 0 5px gold); display:none;">❤️</div> </div>
+                    
+                    <div class="victim-single" id="vis-single">👷</div> 
+                    
+                    <div class="victim-single" id="vis-loop-victim">👷</div>
+
+                    <div class="victim-bridge" id="vis-fatman">👤</div> 
+                    
+                    <div class="victim-single" id="vis-mom">❤️</div> 
+                </div>
 
                 <div class="btn-group" id="action-buttons">
                     </div>
@@ -220,7 +277,7 @@
 
                 <div id="tension-box" style="display:none; margin-top:20px; background:#fff3cd; padding:15px; border-left:4px solid #ffc107; border-radius:4px;">
                     <strong>⚡ PRODUCTIVE TENSION DETECTED.</strong>
-                    <br>The frameworks disagree. This is not a failure; it is data. The system is forcing a trade-off between Dignity and Utility.
+                    <br>The frameworks disagree. This is not a failure; it is data.
                     <br><strong>Third Option Required:</strong> Staff-Led Capacity Building.
                 </div>
             </div>
@@ -232,10 +289,10 @@
                 <p>We have a Third Option: <strong>"Staff-Led Capacity Building."</strong> But is it sustainable? We must run the final check: The Care Audit.</p>
 
                 <div class="triangle-container">
-                    <div class="triangle-point tp-kant">KANT (Dignity)</div>
-                    <div class="center-solution">The Solution</div>
-                    <div class="triangle-point tp-care">CARE (Relations)</div>
-                    <div class="triangle-point tp-util">UTIL (Outcomes)</div>
+                    <div class="triangle-point tp-kant">KANT</div>
+                    <div class="center-solution">Solution</div>
+                    <div class="triangle-point tp-care">CARE</div>
+                    <div class="triangle-point tp-util">UTIL</div>
                     
                     <svg style="position:absolute; width:100%; height:100%; z-index:0;">
                         <line x1="50%" y1="20" x2="10%" y2="180" style="stroke:#cbd5e0;stroke-width:2" />
@@ -243,26 +300,25 @@
                         <line x1="10%" y1="180" x2="90%" y2="180" style="stroke:#cbd5e0;stroke-width:2" />
                     </svg>
                 </div>
-
-                <h3>Run the Care Audit (Tronto's Criteria)</h3>
                 
+
+                <h3>Run the Care Audit</h3>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <div id="audit-1" class="lens-card" style="opacity:0.5; transition:0.3s;">
                         <strong>1. Attentiveness:</strong> Did we notice the pain?
-                        <br><em style="color:var(--care)">Verdict: Yes. We acknowledged the burnout first.</em>
+                        <br><em style="color:var(--care)">Verdict: Yes.</em>
                     </div>
                     <div id="audit-2" class="lens-card" style="opacity:0.5; transition:0.3s;">
                         <strong>2. Competence:</strong> Is the care effective?
-                        <br><em style="color:var(--care)">Verdict: Yes. Budget is allocated to actual relief, not just talk.</em>
+                        <br><em style="color:var(--care)">Verdict: Yes.</em>
                     </div>
                     <div id="audit-3" class="lens-card" style="opacity:0.5; transition:0.3s;">
                         <strong>3. Responsiveness:</strong> Does it strengthen the relationship?
-                        <br><em style="color:var(--care)">Verdict: Yes. Staff author the changes, increasing solidarity.</em>
+                        <br><em style="color:var(--care)">Verdict: Yes.</em>
                     </div>
                 </div>
 
                 <button class="btn btn-care" style="margin-top:20px; width:100%;" onclick="runAudit()">VALIDATE SOLUTION</button>
-                
                 <div id="final-success" style="display:none; text-align:center; margin-top:20px; color:green; font-weight:bold;">
                     ✅ SYSTEM STABLE. Solution satisfies Dignity, Utility, AND Care.
                 </div>
@@ -304,24 +360,24 @@
             },
             2: {
                 title: "2. The Fat Man",
-                desc: "Trolley heading for 5. You are on a bridge next to a large stranger. Pushing him will stop the train. Do you push?",
+                desc: "You are on a bridge. Pushing the large stranger will stop the train. Do you push?",
                 visuals: ['vis-bridge', 'vis-fatman'],
                 btnAction: "Push Stranger (Kill 1)",
                 btnNeutral: "Do Nothing (Kill 5)",
                 analysis: `
                     <div class="lens-card" style="border-left:4px solid #2196f3"><strong>Utilitarian:</strong> PUSH. 5 > 1. Same math as before.</div>
-                    <div class="lens-card" style="border-left:4px solid #9c27b0"><strong>Kantian:</strong> FORBIDDEN. You are using his body as a "mere means." Dignity violation.</div>
+                    <div class="lens-card" style="border-left:4px solid #9c27b0"><strong>Kantian:</strong> FORBIDDEN. You are using his body as a "mere means."</div>
                 `
             },
             3: {
                 title: "3. The Loop",
-                desc: "Side track loops back to main. The 1 worker is heavy enough to stop the train. If you divert, his body stops it. Do you pull?",
-                visuals: ['vis-loop', 'vis-single'],
+                desc: "Side track loops back. The worker is heavy enough to stop the train. If you divert, his body stops it. Do you pull?",
+                visuals: ['vis-loop', 'vis-loop-victim'],
                 btnAction: "Pull Lever (Use Body)",
                 btnNeutral: "Do Nothing (Kill 5)",
                 analysis: `
                     <div class="lens-card" style="border-left:4px solid #2196f3"><strong>Utilitarian:</strong> PULL. 5 > 1.</div>
-                    <div class="lens-card" style="border-left:4px solid #9c27b0"><strong>Kantian:</strong> PROBLEMATIC. Unlike classic, here the death IS the means.</div>
+                    <div class="lens-card" style="border-left:4px solid #9c27b0"><strong>Kantian:</strong> PROBLEMATIC. The death IS the means.</div>
                 `
             },
             4: {
@@ -331,8 +387,8 @@
                 btnAction: "Pull Lever (Kill Mom)",
                 btnNeutral: "Do Nothing (Save Mom)",
                 analysis: `
-                    <div class="lens-card" style="border-left:4px solid #2196f3"><strong>Utilitarian:</strong> PULL. Your mom counts as 1. To save her is bias.</div>
-                    <div class="lens-card" style="border-left:4px solid var(--care)"><strong>Care Ethics:</strong> SAVE MOM. You have a relational duty that overrides the math.</div>
+                    <div class="lens-card" style="border-left:4px solid #2196f3"><strong>Utilitarian:</strong> PULL. Your mom counts as 1. Bias is irrational.</div>
+                    <div class="lens-card" style="border-left:4px solid var(--care)"><strong>Care Ethics:</strong> SAVE MOM. Relationship creates specific duty.</div>
                 `
             }
         };
@@ -343,21 +399,21 @@
             currentScen = n;
             const s = scenarios[n];
             
-            // 1. Text Updates
+            // Text
             document.getElementById('scenario-title').innerText = s.title;
             document.getElementById('scenario-desc').innerText = s.desc;
             document.getElementById('analysis-output').style.display = 'none';
 
-            // 2. Visual Reset
-            ['vis-split', 'vis-loop', 'vis-bridge', 'vis-single', 'vis-fatman', 'vis-mom'].forEach(id => {
+            // Visual Reset
+            ['vis-split', 'vis-loop', 'vis-bridge', 'vis-single', 'vis-fatman', 'vis-mom', 'vis-loop-victim'].forEach(id => {
                 document.getElementById(id).style.display = 'none';
             });
             document.getElementById('trolley').style.transform = "translate(0,0)";
 
-            // 3. Enable Visuals for current scenario
+            // Enable Specific Visuals
             s.visuals.forEach(id => document.getElementById(id).style.display = 'block');
 
-            // 4. Buttons
+            // Buttons
             const btns = document.getElementById('action-buttons');
             btns.innerHTML = `
                 <button class="btn btn-action" onclick="runSim('action')">${s.btnAction}</button>
@@ -369,22 +425,24 @@
             const trolley = document.getElementById('trolley');
             const analysis = document.getElementById('analysis-output');
             
-            // Animation logic based on scenario
             if (choice === 'action') {
                 if(currentScen === 2) {
-                    // Fat Man drops
+                    // Fat Man Drops
                     document.getElementById('vis-fatman').style.top = "40%";
-                    trolley.style.transform = "translate(100px, 0)"; // Stops at body
+                    trolley.style.transform = "translate(100px, 0)";
+                } else if (currentScen === 3) {
+                    // Loop Logic - go down then back up
+                    trolley.style.transform = "translate(100px, 120px) rotate(10deg)";
                 } else {
-                    // Divert
-                    trolley.style.transform = "translate(50px, 80px) rotate(20deg)";
+                    // Classic/Care Logic - go angled
+                    trolley.style.transform = "translate(120px, 110px) rotate(25deg)";
                 }
             } else {
-                // Do nothing: trolley goes straight
-                trolley.style.transform = "translate(200px, 0)";
+                // Neutral - Straight ahead
+                trolley.style.transform = "translate(250px, 0)";
             }
 
-            // Show Analysis
+            // Analysis
             analysis.innerHTML = scenarios[currentScen].analysis;
             setTimeout(() => {
                 analysis.style.display = 'block';
@@ -404,12 +462,10 @@
         function runAudit() {
             document.getElementById('audit-1').style.opacity = '1';
             document.getElementById('audit-1').style.borderLeft = '4px solid var(--care)';
-            
             setTimeout(() => {
                 document.getElementById('audit-2').style.opacity = '1';
                 document.getElementById('audit-2').style.borderLeft = '4px solid var(--care)';
             }, 400);
-
             setTimeout(() => {
                 document.getElementById('audit-3').style.opacity = '1';
                 document.getElementById('audit-3').style.borderLeft = '4px solid var(--care)';
